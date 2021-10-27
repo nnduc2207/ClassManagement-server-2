@@ -58,7 +58,7 @@ async function createUser({
   isStudent
 }) {
   try {
-    if (!(id && name && email && password && isStudent)) {
+    if (!(id && name && email && password && isStudent != undefined)) {
       throw "Missing data";
     }
 
