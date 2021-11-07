@@ -8,6 +8,7 @@ import {
     login,
     updateUser,
     authenticateToken,
+    joinClass,
 } from "./controller"
 import User from "./model"
 
@@ -43,18 +44,6 @@ router.post("/authenticate", async (req, res) => {
 })
 
 // UPDATE CLASS
-router.get("/getclasses", async (req, res) => {
-    const { id } = req.body
-    
-    try {
-        const classes = await getMyClasses(id)
-
-        return res.json(classes)
-    } catch (error) {
-        return res.status(404).json({ error: error.toString() })
-    }
-})
-
 router.post("/addclass", async (req, res) => {
     const { studentId, teacherId, classId } = req.body
     
@@ -111,6 +100,18 @@ router.post("/", async (req, res) => {
     }
 })
 
+router.post("/joinclass/:token", async (req, res) => {
+    const { token } = req.params
+    const { userId } = req.body
+    try {
+        const result = await joinClass({ userId, invitedToken: token })
+
+        return res.json(result)
+    } catch (error) {
+        return res.status(404).json({ error: error.toString() })
+    }
+})
+
 router.get("/:id", async (req, res) => {
     const { id } = req.params
     
@@ -145,6 +146,18 @@ router.delete("/:id", async (req, res) => {
         return res.send(true)
     } catch (error) {
         return res.status(404).json({error: error.toString()})
+    }
+})
+
+router.get("/:id/getclasses", async (req, res) => {
+    const { id } = req.params
+    
+    try {
+        const classes = await getMyClasses(id)
+
+        return res.json(classes)
+    } catch (error) {
+        return res.status(404).json({ error: error.toString() })
     }
 })
 

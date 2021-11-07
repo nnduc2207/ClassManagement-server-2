@@ -1,9 +1,10 @@
-import * as bcrypt from 'bcrypt'
-import {default as jwt} from "jsonwebtoken"
+import * as bcrypt from "bcrypt"
+import { default as jwt } from "jsonwebtoken"
 
 import User from "./model"
 import { createStudy, deleteStudy, getStudiesByUser } from "../study/controller"
 import { createTeach, deleteTeach, getTeachesByUser } from "../teach/controller"
+import Class from "../class/model"
 
 export async function getUsers(isStudent = true) {
     try {
@@ -25,14 +26,20 @@ export async function getUser(id) {
 
 export async function createUser({ id, name, email, password, isStudent }) {
     try {
-        if (!(id && name && email && password && isStudent!=undefined)) {
+        if (!(id && name && email && password && isStudent != undefined)) {
             throw "Missing data"
         }
 
         const salt = bcrypt.genSaltSync(10)
         const hash = bcrypt.hashSync(password, salt)
 
-        const user = await User.create({ id, name, email, password: hash, isStudent })
+        const user = await User.create({
+            id,
+            name,
+            email,
+            password: hash,
+            isStudent,
+        })
 
         return user
     } catch (error) {
@@ -72,7 +79,7 @@ export async function updateUser({ id, name, email }) {
 export async function deleteUser(id) {
     try {
         const user = await User.findById(id)
-        
+
         if (!user) {
             throw `${id} is not an exist UserId`
         }
@@ -82,13 +89,13 @@ export async function deleteUser(id) {
             const deleteStudiesProcess = studies.forEach(async (study) => {
                 return await study.remove()
             })
-            deleteStudiesProcess && await Promise.all(deleteStudiesProcess)
+            deleteStudiesProcess && (await Promise.all(deleteStudiesProcess))
         } else {
             const teaches = await getTeachesByUser(id)
             const deleteTeachesProcess = teaches.forEach(async (teach) => {
                 return await teach.remove()
             })
-            deleteTeachesProcess && await Promise.all(deleteTeachesProcess)
+            deleteTeachesProcess && (await Promise.all(deleteTeachesProcess))
         }
 
         await user.remove()
@@ -130,6 +137,31 @@ export async function addClass({
     }
 }
 
+export async function joinClass({ userId, invitedToken }) {
+    try {
+        const user = await User.findById(userId)
+        if (!user) {
+            throw "UserId not exist"
+        }
+
+        const _class = await Class.findOne({ invitedToken })
+        if (!_class) {
+            throw "Invite code not exist"
+        }
+
+        if (user.isStudent) {
+            await createStudy({ studentId: user.id, classId: _class.id })
+        } else {
+            await createTeach({ teacherId: user.id, classId: _class.id })
+        }
+
+        return true
+    } catch (error) {
+        console.log(error);
+        throw error
+    }
+}
+
 export async function deleteClass({
     studentId = undefined,
     teacherId = undefined,
@@ -147,7 +179,6 @@ export async function deleteClass({
     }
 }
 
-
 export async function login({ email, password }) {
     try {
         const user = await User.findOne({ email })
@@ -159,10 +190,14 @@ export async function login({ email, password }) {
         if (!checkPass) {
             throw "Password wrong"
         }
-        
-        const token = jwt.sign({ ...user._doc }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
 
-        return {user, token}
+        const token = jwt.sign(
+            { ...user._doc },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: "1h" }
+        )
+
+        return { user, token }
     } catch (error) {
         throw error
     }
@@ -171,7 +206,7 @@ export async function login({ email, password }) {
 export async function authenticateToken(token) {
     try {
         let user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
-        
+
         user = await User.findOne({ id: user.id, password: user.password })
         if (!user) {
             throw "Failed Authentication"
