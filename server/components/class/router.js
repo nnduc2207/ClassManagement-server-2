@@ -1,5 +1,5 @@
 import express from "express"
-import { createClass, deleteClass, getClass, getClasses } from "./controller"
+import { createClass, deleteClass, getClass, getClasses, getStudents, getTeachers } from "./controller"
 
 const router = express.Router()
 
@@ -38,6 +38,26 @@ router.delete("/:id", async function (req, res) {
         const { id } = req.params
         await deleteClass(id)
         return res.send(true)
+    } catch (error) {
+        return res.status(404).json(error)
+    }
+})
+
+router.get("/:id/getstudents", async function (req, res) {
+    try {
+        const { id } = req.params
+        const students = await getStudents(id)
+        return res.json(students)
+    } catch (error) {
+        return res.status(404).json(error)
+    }
+})
+
+router.get("/:id/getteachers", async function (req, res) {
+    try {
+        const { id } = req.params
+        const teachers = await getTeachers(id)
+        return res.json(teachers)
     } catch (error) {
         return res.status(404).json(error)
     }

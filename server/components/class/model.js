@@ -13,6 +13,11 @@ const ClassSchema = new Schema(
             type: String,
             required: true,
         },
+        invitedToken: {
+            type: String,
+            required: true,
+            unique: true,
+        }
     },
     {
         timestamps: true,
