@@ -5,10 +5,11 @@
   "main": "dist/bin/www.js",
   "scripts": {
     "start": "npm run prod",
-    "build": "clean transpile",
+    "build": "npm-run-all clean transpile",
+    "nodemon": "nodemon",
     "server": "node ./dist/bin/www",
     "dev": "SET NODE_ENV=development & npm-run-all build server",
-    "prod": "SET NODE_ENV=production & build server",
+    "prod": "SET NODE_ENV=production & npm-run-all build server",
     "clean": "rimraf dist",
     "transpile": "babel ./server --out-dir dist --copy-files",
     "lint": "eslint ./server",
@@ -37,7 +38,8 @@
     "helmet": "^3.22.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.3.16",
-    "morgan": "^1.9.1"
+    "morgan": "^1.9.1",
+    "npm-run-all": "^4.1.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -51,7 +53,6 @@
     "eslint-plugin-import": "^2.22.0",
     "jest": "^25.5.4",
     "nodemon": "^1.18.7",
-    "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
     "supertest": "^5.0.0"
   }
