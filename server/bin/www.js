@@ -9,7 +9,10 @@ import http from 'http';
 import app from '../app';
 
 const debug = debugPkg('js/www:server');
-
+console.log('PORT=' + process.env.PORT);
+console.log('ACCESS_TOKEN_SECRET=' + process.env.ACCESS_TOKEN_SECRET);
+console.log('INVITE_TOKEN_SECRET=' + process.env.INVITE_TOKEN_SECRET);
+console.log('MONGODB_URI=' + process.env.MONGODB_URI);
 /**
  * Get port from environment and store in Express.
  */
