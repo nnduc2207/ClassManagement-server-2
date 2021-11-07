@@ -63,5 +63,15 @@ router.get("/:id/getteachers", async function (req, res) {
     }
 })
 
+router.get("/:id/invitedtoken", async function (req, res) {
+    try {
+        const { id } = req.params
+        const _class = await getClass(id)
+        return res.json(_class.invitedToken)
+    } catch (error) {
+        return res.status(404).json(error)
+    }
+})
+
 
 export default router
